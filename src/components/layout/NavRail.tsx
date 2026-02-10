@@ -21,6 +21,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
+import { LanguageToggle } from "./LanguageToggle";
 
 interface NavRailProps {
   chatListOpen: boolean;
@@ -30,15 +32,16 @@ interface NavRailProps {
 }
 
 const navItems = [
-  { href: "/chat", label: "Chats", icon: Message02Icon },
-  { href: "/extensions", label: "Extensions", icon: GridIcon },
-  { href: "/settings", label: "Settings", icon: Settings02Icon },
+  { href: "/chat", labelKey: "common.newChat", icon: Message02Icon },
+  { href: "/extensions", labelKey: "common.plugins", icon: GridIcon },
+  { href: "/settings", labelKey: "common.settings", icon: Settings02Icon },
 ] as const;
 
 export function NavRail({ chatListOpen, onToggleChatList, hasUpdate, skipPermissionsActive }: NavRailProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const isChatRoute = pathname === "/chat" || pathname.startsWith("/chat/");
 
@@ -59,11 +62,11 @@ export function NavRail({ chatListOpen, onToggleChatList, hasUpdate, skipPermiss
           >
             <Link href="/chat">
               <HugeiconsIcon icon={PlusSignIcon} className="h-4 w-4" />
-              <span className="sr-only">New Chat</span>
+              <span className="sr-only">{t("common.newChat")}</span>
             </Link>
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="right">New Chat</TooltipContent>
+        <TooltipContent side="right">{t("common.newChat")}</TooltipContent>
       </Tooltip>
 
       {/* Divider */}
@@ -101,7 +104,7 @@ export function NavRail({ chatListOpen, onToggleChatList, hasUpdate, skipPermiss
                     }}
                   >
                     <HugeiconsIcon icon={item.icon} className="h-4 w-4" />
-                    <span className="sr-only">{item.label}</span>
+                    <span className="sr-only">{t(item.labelKey)}</span>
                   </Button>
                 ) : (
                   <div className="relative">
@@ -116,7 +119,7 @@ export function NavRail({ chatListOpen, onToggleChatList, hasUpdate, skipPermiss
                     >
                       <Link href={item.href}>
                         <HugeiconsIcon icon={item.icon} className="h-4 w-4" />
-                        <span className="sr-only">{item.label}</span>
+                        <span className="sr-only">{t(item.labelKey)}</span>
                       </Link>
                     </Button>
                     {item.href === "/settings" && hasUpdate && (
@@ -125,13 +128,13 @@ export function NavRail({ chatListOpen, onToggleChatList, hasUpdate, skipPermiss
                   </div>
                 )}
               </TooltipTrigger>
-              <TooltipContent side="right">{item.label}</TooltipContent>
+              <TooltipContent side="right">{t(item.labelKey)}</TooltipContent>
             </Tooltip>
           );
         })}
       </nav>
 
-      {/* Bottom: skip-permissions indicator + theme toggle */}
+      {/* Bottom: skip-permissions indicator + language + theme toggle */}
       <div className="mt-auto flex flex-col items-center gap-2">
         {skipPermissionsActive && (
           <Tooltip>
@@ -146,6 +149,7 @@ export function NavRail({ chatListOpen, onToggleChatList, hasUpdate, skipPermiss
             <TooltipContent side="right">Auto-approve is ON</TooltipContent>
           </Tooltip>
         )}
+        <LanguageToggle />
         {mounted && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -160,11 +164,11 @@ export function NavRail({ chatListOpen, onToggleChatList, hasUpdate, skipPermiss
                 ) : (
                   <HugeiconsIcon icon={Moon02Icon} className="h-4 w-4" />
                 )}
-                <span className="sr-only">Toggle theme</span>
+                <span className="sr-only">{t("theme.toggle")}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right">
-              {theme === "dark" ? "Light mode" : "Dark mode"}
+              {theme === "dark" ? t("theme.light") : t("theme.dark")}
             </TooltipContent>
           </Tooltip>
         )}

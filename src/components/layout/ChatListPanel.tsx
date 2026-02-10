@@ -17,13 +17,14 @@ import { cn } from "@/lib/utils";
 import { usePanel } from "@/hooks/usePanel";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { ImportSessionDialog } from "./ImportSessionDialog";
+import { useLanguage } from "@/lib/i18n";
 import type { ChatSession } from "@/types";
 
 interface ChatListPanelProps {
   open: boolean;
 }
 
-function formatRelativeTime(dateStr: string): string {
+function formatRelativeTime(dateStr: string, locale: string): string {
   const date = new Date(dateStr.includes("T") ? dateStr : dateStr + "Z");
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -31,32 +32,49 @@ function formatRelativeTime(dateStr: string): string {
   const diffHr = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHr / 24);
 
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHr < 24) return `${diffHr}h ago`;
-  if (diffDay < 7) return `${diffDay}d ago`;
-  return date.toLocaleDateString();
+  if (locale === "zh") {
+    if (diffMin < 1) return "刚刚";
+    if (diffMin < 60) return `${diffMin}分钟前`;
+    if (diffHr < 24) return `${diffHr}小时前`;
+    if (diffDay < 7) return `${diffDay}天前`;
+    return date.toLocaleDateString("zh-CN");
+  } else {
+    if (diffMin < 1) return "just now";
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffHr < 24) return `${diffHr}h ago`;
+    if (diffDay < 7) return `${diffDay}d ago`;
+    return date.toLocaleDateString();
+  }
 }
 
-const DATE_GROUP_ORDER = ["Today", "Yesterday", "Last 7 Days", "Older"];
+const getDateGroupOrder = (locale: string): string[] => {
+  if (locale === "zh") {
+    return ["今天", "昨天", "最近7天", "更早"];
+  }
+  return ["Today", "Yesterday", "Last 7 Days", "Older"];
+};
 
-function groupSessionsByDate(
-  sessions: ChatSession[]
-): Record<string, ChatSession[]> {
-  const groups: Record<string, ChatSession[]> = {};
+const getDateGroupKey = (date: Date, locale: string): string => {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const yesterday = new Date(today.getTime() - 86400000);
   const lastWeek = new Date(today.getTime() - 7 * 86400000);
 
+  if (date >= today) return locale === "zh" ? "今天" : "Today";
+  if (date >= yesterday) return locale === "zh" ? "昨天" : "Yesterday";
+  if (date >= lastWeek) return locale === "zh" ? "最近7天" : "Last 7 Days";
+  return locale === "zh" ? "更早" : "Older";
+};
+
+function groupSessionsByDate(
+  sessions: ChatSession[],
+  locale: string
+): Record<string, ChatSession[]> {
+  const groups: Record<string, ChatSession[]> = {};
+
   for (const session of sessions) {
     const date = new Date(session.updated_at);
-    let group: string;
-    if (date >= today) group = "Today";
-    else if (date >= yesterday) group = "Yesterday";
-    else if (date >= lastWeek) group = "Last 7 Days";
-    else group = "Older";
-
+    const group = getDateGroupKey(date, locale);
     if (!groups[group]) groups[group] = [];
     groups[group].push(session);
   }
@@ -73,6 +91,7 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { streamingSessionId, pendingApprovalSessionId } = usePanel();
+  const { locale } = useLanguage();
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [hoveredSession, setHoveredSession] = useState<string | null>(null);
   const [deletingSession, setDeletingSession] = useState<string | null>(null);
@@ -145,7 +164,8 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
       )
     : sessions;
 
-  const groupedSessions = groupSessionsByDate(filteredSessions);
+  const groupedSessions = groupSessionsByDate(filteredSessions, locale);
+  const DATE_GROUP_ORDER = getDateGroupOrder(locale);
 
   if (!open) return null;
 
@@ -267,7 +287,7 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
                                 </span>
                               )}
                               <span className="text-[10px] text-muted-foreground/40 shrink-0">
-                                {formatRelativeTime(session.updated_at)}
+                                {formatRelativeTime(session.updated_at, locale)}
                               </span>
                             </div>
                           </Link>
