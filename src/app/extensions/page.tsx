@@ -7,6 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Loading02Icon } from "@hugeicons/core-free-icons";
 import { SkillsManager } from "@/components/skills/SkillsManager";
 import { McpManager } from "@/components/plugins/McpManager";
+import { useLanguage } from "@/lib/i18n";
 
 type ExtTab = "skills" | "mcp";
 
@@ -26,17 +27,18 @@ export default function ExtensionsPage() {
 
 function ExtensionsPageInner() {
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const initialTab = (searchParams.get("tab") as ExtTab) || "skills";
   const [tab, setTab] = useState<ExtTab>(initialTab);
 
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-border/50 px-6 pt-4 pb-0">
-        <h1 className="text-xl font-semibold mb-3">Extensions</h1>
+        <h1 className="text-xl font-semibold mb-3">{t("extensions.title")}</h1>
         <Tabs value={tab} onValueChange={(v) => setTab(v as ExtTab)}>
           <TabsList>
-            <TabsTrigger value="skills">Skills</TabsTrigger>
-            <TabsTrigger value="mcp">MCP Servers</TabsTrigger>
+            <TabsTrigger value="skills">{t("extensions.skillsTab")}</TabsTrigger>
+            <TabsTrigger value="mcp">{t("extensions.mcpTab")}</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>

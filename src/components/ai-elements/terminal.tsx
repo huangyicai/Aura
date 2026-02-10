@@ -4,6 +4,7 @@ import type { ComponentProps, HTMLAttributes } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 import Ansi from "ansi-to-react";
 import { CheckIcon, CopyIcon, TerminalIcon, Trash2Icon } from "lucide-react";
 import {
@@ -105,15 +106,18 @@ export const TerminalTitle = ({
   className,
   children,
   ...props
-}: TerminalTitleProps) => (
-  <div
-    className={cn("flex items-center gap-2 text-sm text-zinc-400", className)}
-    {...props}
-  >
-    <TerminalIcon className="size-4" />
-    {children ?? "Terminal"}
-  </div>
-);
+}: TerminalTitleProps) => {
+  const { t } = useLanguage();
+  return (
+    <div
+      className={cn("flex items-center gap-2 text-sm text-zinc-400", className)}
+      {...props}
+    >
+      <TerminalIcon className="size-4" />
+      {children ?? t('ai.terminal')}
+    </div>
+  );
+};
 
 export type TerminalStatusProps = HTMLAttributes<HTMLDivElement>;
 
@@ -123,6 +127,7 @@ export const TerminalStatus = ({
   ...props
 }: TerminalStatusProps) => {
   const { isStreaming } = useContext(TerminalContext);
+  const { t } = useLanguage();
 
   if (!isStreaming) {
     return null;
@@ -133,7 +138,7 @@ export const TerminalStatus = ({
       className={cn("flex items-center gap-2 text-xs text-zinc-400", className)}
       {...props}
     >
-      {children ?? <Shimmer className="w-16">Loading...</Shimmer>}
+      {children ?? <Shimmer className="w-16">{t('ai.loading')}</Shimmer>}
     </div>
   );
 };

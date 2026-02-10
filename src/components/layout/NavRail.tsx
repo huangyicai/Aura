@@ -146,7 +146,7 @@ export function NavRail({ chatListOpen, onToggleChatList, hasUpdate, skipPermiss
                 </span>
               </div>
             </TooltipTrigger>
-            <TooltipContent side="right">Auto-approve is ON</TooltipContent>
+            <TooltipContent side="right">{t("autoApprove.isActive")}</TooltipContent>
           </Tooltip>
         )}
         <LanguageToggle />

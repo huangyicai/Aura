@@ -11,9 +11,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { LanguageToggle } from "./LanguageToggle";
+import { useLanguage } from "@/lib/i18n";
 
 export function Header() {
   const { theme, setTheme } = useTheme();
+  const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -39,11 +41,11 @@ export function Header() {
                   ) : (
                     <HugeiconsIcon icon={Moon02Icon} className="h-4 w-4" />
                   )}
-                  <span className="sr-only">Toggle theme</span>
+                  <span className="sr-only">{t("theme.toggle")}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom">
-                {theme === "dark" ? "Light mode" : "Dark mode"}
+                {theme === "dark" ? t("theme.light") : t("theme.dark")}
               </TooltipContent>
             </Tooltip>
           </>

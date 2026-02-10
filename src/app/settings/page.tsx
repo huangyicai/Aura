@@ -27,6 +27,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { ProviderManager } from "@/components/settings/ProviderManager";
 import { useUpdate } from "@/hooks/useUpdate";
+import { useLanguage } from "@/lib/i18n";
 
 interface SettingsData {
   [key: string]: unknown;
@@ -65,6 +66,7 @@ export default function SettingsPage() {
 // --- About & Updates card ---
 function UpdateCard() {
   const { updateInfo, checking, checkForUpdates } = useUpdate();
+  const { t } = useLanguage();
   const currentVersion = process.env.NEXT_PUBLIC_APP_VERSION || "0.0.0";
 
   return (
@@ -72,7 +74,7 @@ function UpdateCard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-medium">Aura</h2>
-          <p className="text-xs text-muted-foreground">Version {currentVersion}</p>
+          <p className="text-xs text-muted-foreground">{t("common.update")} {currentVersion}</p>
         </div>
         <Button
           variant="outline"
@@ -86,7 +88,7 @@ function UpdateCard() {
           ) : (
             <HugeiconsIcon icon={ReloadIcon} className="h-3.5 w-3.5" />
           )}
-          {checking ? "Checking..." : "Check for Updates"}
+          {checking ? t("settings.checkingUpdates") : t("settings.checkForUpdates")}
         </Button>
       </div>
 
@@ -96,7 +98,7 @@ function UpdateCard() {
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-blue-500" />
               <span className="text-sm">
-                Update available: <span className="font-medium">v{updateInfo.latestVersion}</span>
+                {t("settings.updateAvailable")} <span className="font-medium">v{updateInfo.latestVersion}</span>
               </span>
               <Button
                 variant="link"
@@ -104,11 +106,11 @@ function UpdateCard() {
                 className="h-auto p-0 text-sm"
                 onClick={() => window.open(updateInfo.releaseUrl, "_blank")}
               >
-                View Release
+                {t("settings.viewRelease")}
               </Button>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">You&apos;re on the latest version.</p>
+            <p className="text-sm text-muted-foreground">{t("settings.latestVersion")}</p>
           )}
         </div>
       )}
@@ -118,6 +120,7 @@ function UpdateCard() {
 
 // --- Claude CLI Settings Section (manages ~/.claude/settings.json) ---
 function SettingsPageInner() {
+  const { t } = useLanguage();
   const [settings, setSettings] = useState<SettingsData>({});
   const [originalSettings, setOriginalSettings] = useState<SettingsData>({});
   const [jsonText, setJsonText] = useState("");
@@ -275,9 +278,9 @@ function SettingsPageInner() {
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-border/50 px-6 pt-4 pb-4">
-        <h1 className="text-xl font-semibold">Settings</h1>
+        <h1 className="text-xl font-semibold">{t("settings.title")}</h1>
         <p className="text-sm text-muted-foreground">
-          Manage Aura and Claude CLI settings
+          {t("settings.description")}
         </p>
       </div>
 
@@ -290,10 +293,9 @@ function SettingsPageInner() {
           <div className={`rounded-lg border p-4 transition-shadow hover:shadow-sm ${skipPermissions ? "border-orange-500/50 bg-orange-500/5" : "border-border/50"}`}>
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-sm font-medium">Auto-approve All Actions</h2>
+                <h2 className="text-sm font-medium">{t("settings.autoApprove")}</h2>
                 <p className="text-xs text-muted-foreground">
-                  Skip all permission checks and auto-approve every tool action.
-                  This is dangerous and should only be used for trusted tasks.
+                  {t("settings.autoApproveWarning")}
                 </p>
               </div>
               <Switch
@@ -305,7 +307,7 @@ function SettingsPageInner() {
             {skipPermissions && (
               <div className="mt-3 flex items-center gap-2 rounded-md bg-orange-500/10 px-3 py-2 text-xs text-orange-600 dark:text-orange-400">
                 <span className="h-2 w-2 shrink-0 rounded-full bg-orange-500" />
-                All tool actions will be auto-approved without confirmation. Use with caution.
+                {t("settings.autoApproveDetails")}
               </div>
             )}
           </div>
@@ -314,7 +316,7 @@ function SettingsPageInner() {
             <div className="flex items-center justify-center py-12">
               <HugeiconsIcon icon={Loading02Icon} className="h-5 w-5 animate-spin text-muted-foreground" />
               <span className="ml-2 text-sm text-muted-foreground">
-                Loading settings...
+                {t("settings.loading")}
               </span>
             </div>
           ) : (
@@ -322,11 +324,11 @@ function SettingsPageInner() {
               <TabsList className="mb-4">
                 <TabsTrigger value="form" className="gap-2">
                   <HugeiconsIcon icon={SlidersHorizontalIcon} className="h-4 w-4" />
-                  Visual Editor
+                  {t("settings.visualEditor")}
                 </TabsTrigger>
                 <TabsTrigger value="json" className="gap-2">
                   <HugeiconsIcon icon={CodeIcon} className="h-4 w-4" />
-                  JSON Editor
+                  {t("settings.jsonEditor")}
                 </TabsTrigger>
               </TabsList>
 
@@ -382,7 +384,7 @@ function SettingsPageInner() {
                               }
                             />
                             <span className="text-sm text-muted-foreground">
-                              {value ? "Enabled" : "Disabled"}
+                              {value ? t("common.active") : t("common.disabled")}
                             </span>
                           </div>
                         ) : typeof value === "string" ? (
@@ -421,7 +423,7 @@ function SettingsPageInner() {
                       ) : (
                         <HugeiconsIcon icon={FloppyDiskIcon} className="h-4 w-4" />
                       )}
-                      {saving ? "Saving..." : "Save Changes"}
+                      {saving ? t("common.saving") : t("settings.saveChanges")}
                     </Button>
                     <Button
                       variant="outline"
@@ -430,11 +432,11 @@ function SettingsPageInner() {
                       className="gap-2"
                     >
                       <HugeiconsIcon icon={ReloadIcon} className="h-4 w-4" />
-                      Reset
+                      {t("common.reset")}
                     </Button>
                     {saveSuccess && (
                       <span className="text-sm text-green-600 dark:text-green-400">
-                        Settings saved successfully
+                        {t("settings.saveSuccess")}
                       </span>
                     )}
                   </div>
@@ -450,7 +452,7 @@ function SettingsPageInner() {
                       setJsonError("");
                     }}
                     className="min-h-[400px] font-mono text-sm"
-                    placeholder='{"key": "value"}'
+                    placeholder={t("settings.jsonPlaceholder")}
                   />
                   {jsonError && (
                     <p className="text-sm text-destructive">{jsonError}</p>
@@ -467,7 +469,7 @@ function SettingsPageInner() {
                       ) : (
                         <HugeiconsIcon icon={FloppyDiskIcon} className="h-4 w-4" />
                       )}
-                      {saving ? "Saving..." : "Save JSON"}
+                      {saving ? t("common.saving") : t("settings.saveJson")}
                     </Button>
                     <Button
                       variant="outline"
@@ -475,7 +477,7 @@ function SettingsPageInner() {
                       className="gap-2"
                     >
                       <HugeiconsIcon icon={CodeIcon} className="h-4 w-4" />
-                      Format
+                      {t("common.format")}
                     </Button>
                     <Button
                       variant="outline"
@@ -483,11 +485,11 @@ function SettingsPageInner() {
                       className="gap-2"
                     >
                       <HugeiconsIcon icon={ReloadIcon} className="h-4 w-4" />
-                      Reset
+                      {t("common.reset")}
                     </Button>
                     {saveSuccess && (
                       <span className="text-sm text-green-600 dark:text-green-400">
-                        Settings saved successfully
+                        {t("settings.saveSuccess")}
                       </span>
                     )}
                   </div>
@@ -502,18 +504,17 @@ function SettingsPageInner() {
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Save</AlertDialogTitle>
+            <AlertDialogTitle>{t("settings.confirmSave")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will overwrite your current ~/.claude/settings.json file. Are
-              you sure you want to continue?
+              {t("settings.confirmSaveDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => pendingSaveAction && handleSave(pendingSaveAction)}
             >
-              Save
+              {t("common.save")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -523,33 +524,30 @@ function SettingsPageInner() {
       <AlertDialog open={showSkipPermWarning} onOpenChange={setShowSkipPermWarning}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Enable Auto-approve All Actions?</AlertDialogTitle>
+            <AlertDialogTitle>{t("settings.autoApproveConfirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-2">
                 <p>
-                  This will bypass all permission checks. Claude will be able to
-                  execute any tool action without asking for your confirmation,
-                  including:
+                  {t("settings.autoApproveConfirmDesc")}
                 </p>
                 <ul className="list-disc pl-5 space-y-1">
-                  <li>Running arbitrary shell commands</li>
-                  <li>Reading, writing, and deleting files</li>
-                  <li>Making network requests</li>
+                  <li>{t("settings.autoApproveCommands")}</li>
+                  <li>{t("settings.autoApproveFiles")}</li>
+                  <li>{t("settings.autoApproveNetwork")}</li>
                 </ul>
                 <p className="font-medium text-orange-600 dark:text-orange-400">
-                  Only enable this if you fully trust the task at hand. This
-                  setting applies to all new chat sessions.
+                  {t("settings.autoApproveDetails")}
                 </p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => saveSkipPermissions(true)}
               className="bg-orange-600 hover:bg-orange-700 text-white"
             >
-              Enable Auto-approve
+              {t("settings.enableAutoApprove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

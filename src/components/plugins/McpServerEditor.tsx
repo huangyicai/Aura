@@ -16,6 +16,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ServerStack01Icon, Wifi01Icon, GlobeIcon, CodeIcon } from "@hugeicons/core-free-icons";
 import type { MCPServer } from '@/types';
+import { useLanguage } from '@/lib/i18n';
 
 type ServerType = 'stdio' | 'sse' | 'http';
 
@@ -34,6 +35,7 @@ export function McpServerEditor({
   server: initialServer,
   onSave,
 }: McpServerEditorProps) {
+  const { t } = useLanguage();
   const isEditing = !!initialName;
   const [name, setName] = useState(initialName || '');
   const [serverType, setServerType] = useState<ServerType>(
@@ -84,7 +86,7 @@ export function McpServerEditor({
     setError(null);
 
     if (!name.trim()) {
-      setError('Server name is required');
+      setError(t('extensions.nameRequired'));
       return;
     }
 
@@ -92,13 +94,13 @@ export function McpServerEditor({
       try {
         const parsed = JSON.parse(jsonText);
         if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-          setError('JSON must be an object');
+          setError(t('extensions.invalidJson'));
           return;
         }
         onSave(name.trim(), parsed as MCPServer);
         onOpenChange(false);
       } catch {
-        setError('Invalid JSON configuration');
+        setError(t('extensions.invalidConfig'));
       }
       return;
     }
@@ -106,12 +108,12 @@ export function McpServerEditor({
     // Validate based on server type
     if (serverType === 'stdio') {
       if (!command.trim()) {
-        setError('Command is required for stdio servers');
+        setError(t('extensions.commandRequired'));
         return;
       }
     } else {
       if (!url.trim()) {
-        setError('URL is required for SSE/HTTP servers');
+        setError(t('extensions.urlRequired'));
         return;
       }
     }
@@ -122,11 +124,11 @@ export function McpServerEditor({
       if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
         env = Object.keys(parsed).length > 0 ? parsed : undefined;
       } else {
-        setError('Environment must be a JSON object');
+        setError(t('extensions.invalidEnvJson'));
         return;
       }
     } catch {
-      setError('Invalid JSON in environment variables');
+      setError(t('extensions.invalidEnvFormat'));
       return;
     }
 
@@ -137,11 +139,11 @@ export function McpServerEditor({
         if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
           headers = Object.keys(parsed).length > 0 ? parsed : undefined;
         } else {
-          setError('Headers must be a JSON object');
+          setError(t('extensions.invalidHeadersJson'));
           return;
         }
       } catch {
-        setError('Invalid JSON in headers');
+        setError(t('extensions.invalidHeadersFormat'));
         return;
       }
     }
@@ -175,13 +177,13 @@ export function McpServerEditor({
       <DialogContent className="sm:max-w-[550px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? `Edit MCP Server: ${initialName}` : 'Add MCP Server'}
+            {isEditing ? t('extensions.editServer', { name: initialName || '' }) : t('extensions.addServerTitle')}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor="server-name">Server Name</Label>
+            <Label htmlFor="server-name">{t('extensions.serverName')}</Label>
             <Input
               id="server-name"
               value={name}
@@ -189,13 +191,13 @@ export function McpServerEditor({
                 setName(e.target.value);
                 setError(null);
               }}
-              placeholder="my-mcp-server"
+              placeholder={t('extensions.serverNamePlaceholder')}
               disabled={isEditing}
             />
           </div>
 
           <div className="flex items-center gap-2">
-            <Label className="shrink-0">Edit Mode:</Label>
+            <Label className="shrink-0">{t('extensions.editMode')}:</Label>
             <Button
               variant={jsonMode ? 'outline' : 'default'}
               size="sm"
@@ -204,7 +206,7 @@ export function McpServerEditor({
                 setError(null);
               }}
             >
-              Form
+              {t('extensions.formMode')}
             </Button>
             <Button
               variant={jsonMode ? 'default' : 'outline'}
@@ -235,13 +237,13 @@ export function McpServerEditor({
               }}
             >
               <HugeiconsIcon icon={CodeIcon} className="h-3.5 w-3.5" />
-              JSON
+              {t('extensions.jsonMode')}
             </Button>
           </div>
 
           {jsonMode ? (
             <div className="space-y-2">
-              <Label>Server Configuration (JSON)</Label>
+              <Label>{t('extensions.serverConfigJson')}</Label>
               <Textarea
                 value={jsonText}
                 onChange={(e) => {
@@ -249,13 +251,13 @@ export function McpServerEditor({
                   setError(null);
                 }}
                 className="font-mono text-sm min-h-[250px]"
-                placeholder='{"command": "npx", "args": ["-y", "@server/name"]}'
+                placeholder={t('extensions.jsonPlaceholder')}
               />
             </div>
           ) : (
             <>
               <div className="space-y-2">
-                <Label>Server Type</Label>
+                <Label>{t('extensions.serverType')}</Label>
                 <Tabs
                   value={serverType}
                   onValueChange={(v) => {
@@ -266,15 +268,15 @@ export function McpServerEditor({
                   <TabsList className="w-full">
                     <TabsTrigger value="stdio" className="flex-1 gap-1.5">
                       <HugeiconsIcon icon={ServerStack01Icon} className="h-3.5 w-3.5" />
-                      stdio
+                      {t('extensions.typeStdio')}
                     </TabsTrigger>
                     <TabsTrigger value="sse" className="flex-1 gap-1.5">
                       <HugeiconsIcon icon={Wifi01Icon} className="h-3.5 w-3.5" />
-                      SSE
+                      {t('extensions.typeSse')}
                     </TabsTrigger>
                     <TabsTrigger value="http" className="flex-1 gap-1.5">
                       <HugeiconsIcon icon={GlobeIcon} className="h-3.5 w-3.5" />
-                      HTTP
+                      {t('extensions.typeHttp')}
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
@@ -283,7 +285,7 @@ export function McpServerEditor({
               {serverType === 'stdio' ? (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="server-command">Command</Label>
+                    <Label htmlFor="server-command">{t('extensions.command')}</Label>
                     <Input
                       id="server-command"
                       value={command}
@@ -291,18 +293,18 @@ export function McpServerEditor({
                         setCommand(e.target.value);
                         setError(null);
                       }}
-                      placeholder="npx -y @modelcontextprotocol/server-name"
+                      placeholder={t('extensions.commandPlaceholder')}
                       className="font-mono text-sm"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="server-args">Arguments (one per line)</Label>
+                    <Label htmlFor="server-args">{t('extensions.args')}</Label>
                     <Textarea
                       id="server-args"
                       value={args}
                       onChange={(e) => setArgs(e.target.value)}
-                      placeholder={"--flag\nvalue"}
+                      placeholder={t('extensions.argsPlaceholder')}
                       className="font-mono text-sm min-h-[80px]"
                     />
                   </div>
@@ -310,7 +312,7 @@ export function McpServerEditor({
               ) : (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="server-url">URL</Label>
+                    <Label htmlFor="server-url">{t('extensions.url')}</Label>
                     <Input
                       id="server-url"
                       value={url}
@@ -320,15 +322,15 @@ export function McpServerEditor({
                       }}
                       placeholder={
                         serverType === 'sse'
-                          ? 'http://localhost:3001/sse'
-                          : 'http://localhost:3001'
+                          ? t('extensions.urlSsePlaceholder')
+                          : t('extensions.urlPlaceholder')
                       }
                       className="font-mono text-sm"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="server-headers">Headers (JSON)</Label>
+                    <Label htmlFor="server-headers">{t('extensions.headers')}</Label>
                     <Textarea
                       id="server-headers"
                       value={headersText}
@@ -336,7 +338,7 @@ export function McpServerEditor({
                         setHeadersText(e.target.value);
                         setError(null);
                       }}
-                      placeholder='{"Authorization": "Bearer ..."}'
+                      placeholder={t('extensions.headersPlaceholder')}
                       className="font-mono text-sm min-h-[80px]"
                     />
                   </div>
@@ -344,7 +346,7 @@ export function McpServerEditor({
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="server-env">Environment Variables (JSON)</Label>
+                <Label htmlFor="server-env">{t('extensions.envVars')}</Label>
                 <Textarea
                   id="server-env"
                   value={envText}
@@ -352,7 +354,7 @@ export function McpServerEditor({
                     setEnvText(e.target.value);
                     setError(null);
                   }}
-                  placeholder='{"API_KEY": "..."}'
+                  placeholder={t('extensions.envVarsPlaceholder')}
                   className="font-mono text-sm min-h-[80px]"
                 />
               </div>
@@ -364,10 +366,10 @@ export function McpServerEditor({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button onClick={handleSave}>
-            {isEditing ? 'Save Changes' : 'Add Server'}
+            {t('extensions.saveChanges')}
           </Button>
         </DialogFooter>
       </DialogContent>

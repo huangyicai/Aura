@@ -13,9 +13,11 @@ import {
 import { usePanel } from "@/hooks/usePanel";
 import { FileTree } from "@/components/project/FileTree";
 import { FilePreview } from "@/components/project/FilePreview";
+import { useLanguage } from "@/lib/i18n";
 
 export function RightPanel() {
   const { panelOpen, setPanelOpen, workingDirectory, sessionId, sessionTitle, setSessionTitle } = usePanel();
+  const { t } = useLanguage();
   const [previewPath, setPreviewPath] = useState<string | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editName, setEditName] = useState("");
@@ -75,10 +77,10 @@ export function RightPanel() {
               onClick={() => setPanelOpen(true)}
             >
               <HugeiconsIcon icon={StructureFolderIcon} className="h-4 w-4" />
-              <span className="sr-only">Open panel</span>
+              <span className="sr-only">{t("common.openPanel")}</span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="left">Open panel</TooltipContent>
+          <TooltipContent side="left">{t("common.openPanel")}</TooltipContent>
         </Tooltip>
       </div>
     );
@@ -96,7 +98,7 @@ export function RightPanel() {
     <aside className="hidden h-full w-72 shrink-0 flex-col overflow-hidden bg-background lg:flex">
       {/* Header */}
       <div className="flex h-10 shrink-0 items-center justify-between px-4">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Chat Info</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("project.title")}</span>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -105,10 +107,10 @@ export function RightPanel() {
               onClick={() => setPanelOpen(false)}
             >
               <HugeiconsIcon icon={PanelRightCloseIcon} className="h-4 w-4" />
-              <span className="sr-only">Close panel</span>
+              <span className="sr-only">{t("common.closePanel")}</span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="left">Close panel</TooltipContent>
+          <TooltipContent side="left">{t("common.closePanel")}</TooltipContent>
         </Tooltip>
       </div>
 
@@ -116,7 +118,7 @@ export function RightPanel() {
       <div className="flex-1 overflow-auto p-4 space-y-4">
         {/* Name - editable */}
         <div>
-          <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70 mb-1.5 block">Name</label>
+          <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70 mb-1.5 block">{t("common.name")}</label>
           {isEditingName ? (
             <div className="flex items-center gap-1.5">
               <Input
@@ -151,7 +153,7 @@ export function RightPanel() {
 
         {/* Files */}
         <div className="flex flex-col min-h-0">
-          <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70 mb-1.5 block">Files</span>
+          <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70 mb-1.5 block">{t("project.files")}</span>
           <div className="overflow-hidden">
             {previewPath ? (
               <FilePreview filePath={previewPath} onBack={handleBackToTree} />

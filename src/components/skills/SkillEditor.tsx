@@ -21,6 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { SkillItem } from "./SkillListItem";
@@ -34,6 +35,7 @@ interface SkillEditorProps {
 }
 
 export function SkillEditor({ skill, onSave, onDelete }: SkillEditorProps) {
+  const { t } = useLanguage();
   const [content, setContent] = useState(skill.content);
   const [viewMode, setViewMode] = useState<ViewMode>("edit");
   const [saving, setSaving] = useState(false);
@@ -112,7 +114,7 @@ export function SkillEditor({ skill, onSave, onDelete }: SkillEditorProps) {
           {isDirty && (
             <span
               className="h-2 w-2 rounded-full bg-orange-400 shrink-0"
-              title="Unsaved changes"
+              title={t("skills.unsavedChanges")}
             />
           )}
           <Badge
@@ -153,7 +155,7 @@ export function SkillEditor({ skill, onSave, onDelete }: SkillEditorProps) {
                 <HugeiconsIcon icon={Edit02Icon} className="h-3 w-3" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Edit</TooltipContent>
+            <TooltipContent>{t("common.edit")}</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -165,7 +167,7 @@ export function SkillEditor({ skill, onSave, onDelete }: SkillEditorProps) {
                 <HugeiconsIcon icon={EyeIcon} className="h-3 w-3" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Preview</TooltipContent>
+            <TooltipContent>{t("common.view")}</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -177,7 +179,7 @@ export function SkillEditor({ skill, onSave, onDelete }: SkillEditorProps) {
                 <HugeiconsIcon icon={LayoutTwoColumnIcon} className="h-3 w-3" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Split</TooltipContent>
+            <TooltipContent>{t("common.edit")} / {t("common.view")}</TooltipContent>
           </Tooltip>
 
           <div className="w-px h-4 bg-border mx-1" />
@@ -194,7 +196,7 @@ export function SkillEditor({ skill, onSave, onDelete }: SkillEditorProps) {
             ) : (
               <HugeiconsIcon icon={FloppyDiskIcon} className="h-3 w-3" />
             )}
-            {saving ? "Saving" : saved ? "Saved" : "Save"}
+            {saving ? t("common.saving") : saved ? t("common.saved") : t("common.save")}
           </Button>
 
           {/* Delete */}
@@ -217,7 +219,7 @@ export function SkillEditor({ skill, onSave, onDelete }: SkillEditorProps) {
             onChange={(e) => setContent(e.target.value)}
             onKeyDown={handleKeyDown}
             className="h-full w-full resize-none rounded-none border-0 font-mono text-sm focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[400px]"
-            placeholder="Write your skill prompt in Markdown..."
+            placeholder={t("skills.writePrompt")}
           />
         )}
         {viewMode === "preview" && (
@@ -231,7 +233,7 @@ export function SkillEditor({ skill, onSave, onDelete }: SkillEditorProps) {
                 onChange={(e) => setContent(e.target.value)}
                 onKeyDown={handleKeyDown}
                 className="h-full w-full resize-none rounded-none border-0 font-mono text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
-                placeholder="Write your skill prompt in Markdown..."
+                placeholder={t("skills.writePrompt")}
               />
             </div>
             <div className="flex-1 min-w-0 overflow-auto">

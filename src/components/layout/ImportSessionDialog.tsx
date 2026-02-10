@@ -24,6 +24,7 @@ import {
   MessageAddIcon,
 } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 interface ClaudeSessionInfo {
   sessionId: string;
@@ -45,7 +46,7 @@ interface ImportSessionDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-function formatRelativeTime(dateStr: string): string {
+function formatRelativeTime(dateStr: string, t: (key: string, params?: Record<string, string | number>) => string): string {
   const date = new Date(dateStr);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -53,10 +54,10 @@ function formatRelativeTime(dateStr: string): string {
   const diffHr = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHr / 24);
 
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHr < 24) return `${diffHr}h ago`;
-  if (diffDay < 7) return `${diffDay}d ago`;
+  if (diffMin < 1) return t("import.justNow");
+  if (diffMin < 60) return t("import.minAgo", { diffMin });
+  if (diffHr < 24) return t("import.hrAgo", { diffHr });
+  if (diffDay < 7) return t("import.dayAgo", { diffDay });
   return date.toLocaleDateString();
 }
 
@@ -71,6 +72,7 @@ export function ImportSessionDialog({
   onOpenChange,
 }: ImportSessionDialogProps) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [sessions, setSessions] = useState<ClaudeSessionInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState<string | null>(null);
@@ -154,11 +156,10 @@ export function ImportSessionDialog({
               icon={FileImportIcon}
               className="h-5 w-5 text-primary"
             />
-            Import CLI Session
+            {t("import.title")}
           </DialogTitle>
           <DialogDescription>
-            Browse and import conversations from Claude Code CLI. Imported
-            sessions can be resumed in Aura.
+            {t("import.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -169,7 +170,7 @@ export function ImportSessionDialog({
             className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
           />
           <Input
-            placeholder="Search by project, message, or branch..."
+            placeholder={t("import.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-8 text-sm"
@@ -193,7 +194,7 @@ export function ImportSessionDialog({
                   className="h-5 w-5 animate-spin text-muted-foreground"
                 />
                 <span className="ml-2 text-sm text-muted-foreground">
-                  Scanning CLI sessions...
+                  {t("import.scanning")}
                 </span>
               </div>
             ) : filteredSessions.length === 0 ? (
@@ -204,13 +205,13 @@ export function ImportSessionDialog({
                 />
                 <p className="text-sm">
                   {searchQuery
-                    ? "No matching sessions"
-                    : "No Claude Code CLI sessions found"}
+                    ? t("import.noMatchingSessions")
+                    : t("import.noSessionsFound")}
                 </p>
                 <p className="text-xs mt-1 opacity-60">
                   {searchQuery
-                    ? "Try a different search term"
-                    : "Sessions are stored in ~/.claude/projects/"}
+                    ? t("import.tryDifferentSearch")
+                    : t("import.sessionsLocation")}
                 </p>
               </div>
             ) : (
@@ -264,7 +265,7 @@ export function ImportSessionDialog({
                               icon={Loading02Icon}
                               className="h-3 w-3 mr-1 animate-spin"
                             />
-                            Importing...
+                            {t("import.importing")}
                           </>
                         ) : (
                           <>
@@ -272,7 +273,7 @@ export function ImportSessionDialog({
                               icon={FileImportIcon}
                               className="h-3 w-3 mr-1"
                             />
-                            Import
+                            {t("import.import")}
                           </>
                         )}
                       </Button>
@@ -295,14 +296,14 @@ export function ImportSessionDialog({
                           icon={MessageAddIcon}
                           className="h-2.5 w-2.5"
                         />
-                        {totalMessages} msg{totalMessages !== 1 ? "s" : ""}
+                        {totalMessages === 1 ? t("import.message", { count: totalMessages }) : t("import.messages", { count: totalMessages })}
                       </span>
                       <span className="flex items-center gap-0.5 shrink-0">
                         <HugeiconsIcon
                           icon={ClockIcon}
                           className="h-2.5 w-2.5"
                         />
-                        {formatRelativeTime(session.updatedAt)}
+                        {formatRelativeTime(session.updatedAt, t)}
                       </span>
                       <span className="shrink-0">
                         {formatFileSize(session.fileSize)}

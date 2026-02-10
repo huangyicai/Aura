@@ -13,6 +13,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { usePanel } from "@/hooks/usePanel";
 import { ConnectionStatus } from "./ConnectionStatus";
@@ -24,7 +32,7 @@ interface ChatListPanelProps {
   open: boolean;
 }
 
-function formatRelativeTime(dateStr: string, locale: string): string {
+function formatRelativeTime(dateStr: string, t: (key: string, params?: Record<string, string | number>) => string): string {
   const date = new Date(dateStr.includes("T") ? dateStr : dateStr + "Z");
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -32,49 +40,38 @@ function formatRelativeTime(dateStr: string, locale: string): string {
   const diffHr = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHr / 24);
 
-  if (locale === "zh") {
-    if (diffMin < 1) return "刚刚";
-    if (diffMin < 60) return `${diffMin}分钟前`;
-    if (diffHr < 24) return `${diffHr}小时前`;
-    if (diffDay < 7) return `${diffDay}天前`;
-    return date.toLocaleDateString("zh-CN");
-  } else {
-    if (diffMin < 1) return "just now";
-    if (diffMin < 60) return `${diffMin}m ago`;
-    if (diffHr < 24) return `${diffHr}h ago`;
-    if (diffDay < 7) return `${diffDay}d ago`;
-    return date.toLocaleDateString();
-  }
+  if (diffMin < 1) return t("chat.justNow");
+  if (diffMin < 60) return t("chat.minAgo", { diffMin });
+  if (diffHr < 24) return t("chat.hrAgo", { diffHr });
+  if (diffDay < 7) return t("chat.dayAgo", { diffDay });
+  return date.toLocaleDateString();
 }
 
-const getDateGroupOrder = (locale: string): string[] => {
-  if (locale === "zh") {
-    return ["今天", "昨天", "最近7天", "更早"];
-  }
-  return ["Today", "Yesterday", "Last 7 Days", "Older"];
+const getDateGroupOrder = (t: (key: string) => string): string[] => {
+  return [t("chat.today"), t("chat.yesterday"), t("chat.last7Days"), t("chat.older")];
 };
 
-const getDateGroupKey = (date: Date, locale: string): string => {
+const getDateGroupKey = (date: Date, t: (key: string) => string): string => {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const yesterday = new Date(today.getTime() - 86400000);
   const lastWeek = new Date(today.getTime() - 7 * 86400000);
 
-  if (date >= today) return locale === "zh" ? "今天" : "Today";
-  if (date >= yesterday) return locale === "zh" ? "昨天" : "Yesterday";
-  if (date >= lastWeek) return locale === "zh" ? "最近7天" : "Last 7 Days";
-  return locale === "zh" ? "更早" : "Older";
+  if (date >= today) return t("chat.today");
+  if (date >= yesterday) return t("chat.yesterday");
+  if (date >= lastWeek) return t("chat.last7Days");
+  return t("chat.older");
 };
 
 function groupSessionsByDate(
   sessions: ChatSession[],
-  locale: string
+  t: (key: string) => string
 ): Record<string, ChatSession[]> {
   const groups: Record<string, ChatSession[]> = {};
 
   for (const session of sessions) {
     const date = new Date(session.updated_at);
-    const group = getDateGroupKey(date, locale);
+    const group = getDateGroupKey(date, t);
     if (!groups[group]) groups[group] = [];
     groups[group].push(session);
   }
@@ -82,21 +79,23 @@ function groupSessionsByDate(
 }
 
 const MODE_BADGE_CONFIG = {
-  code: { label: "Code", className: "bg-blue-500/10 text-blue-500" },
-  plan: { label: "Plan", className: "bg-sky-500/10 text-sky-500" },
-  ask: { label: "Ask", className: "bg-green-500/10 text-green-500" },
+  code: { labelKey: "modeCode", className: "bg-blue-500/10 text-blue-500" },
+  plan: { labelKey: "modePlan", className: "bg-sky-500/10 text-sky-500" },
+  ask: { labelKey: "modeAsk", className: "bg-green-500/10 text-green-500" },
 } as const;
 
 export function ChatListPanel({ open }: ChatListPanelProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { streamingSessionId, pendingApprovalSessionId } = usePanel();
-  const { locale } = useLanguage();
+  const { locale, t } = useLanguage();
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [hoveredSession, setHoveredSession] = useState<string | null>(null);
   const [deletingSession, setDeletingSession] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [pendingDeleteSessionId, setPendingDeleteSessionId] = useState<string | null>(null);
 
   const fetchSessions = useCallback(async () => {
     try {
@@ -136,15 +135,21 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
   ) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm('Delete this conversation?')) return;
-    setDeletingSession(sessionId);
+    setPendingDeleteSessionId(sessionId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteSession = async () => {
+    if (!pendingDeleteSessionId) return;
+    setDeletingSession(pendingDeleteSessionId);
+    setDeleteConfirmOpen(false);
     try {
-      const res = await fetch(`/api/chat/sessions/${sessionId}`, {
+      const res = await fetch(`/api/chat/sessions/${pendingDeleteSessionId}`, {
         method: "DELETE",
       });
       if (res.ok) {
-        setSessions((prev) => prev.filter((s) => s.id !== sessionId));
-        if (pathname === `/chat/${sessionId}`) {
+        setSessions((prev) => prev.filter((s) => s.id !== pendingDeleteSessionId));
+        if (pathname === `/chat/${pendingDeleteSessionId}`) {
           router.push("/chat");
         }
       }
@@ -152,6 +157,7 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
       // Silently fail
     } finally {
       setDeletingSession(null);
+      setPendingDeleteSessionId(null);
     }
   };
 
@@ -164,8 +170,8 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
       )
     : sessions;
 
-  const groupedSessions = groupSessionsByDate(filteredSessions, locale);
-  const DATE_GROUP_ORDER = getDateGroupOrder(locale);
+  const groupedSessions = groupSessionsByDate(filteredSessions, t);
+  const DATE_GROUP_ORDER = getDateGroupOrder(t);
 
   if (!open) return null;
 
@@ -174,7 +180,7 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
       {/* Header - extra top padding for macOS traffic lights */}
       <div className="flex h-12 shrink-0 items-center justify-between px-3 mt-5 pl-6">
         <span className="text-[13px] font-semibold tracking-tight text-sidebar-foreground">
-          Chats
+          {t("chat.title")}
         </span>
         <ConnectionStatus />
       </div>
@@ -184,7 +190,7 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
         <div className="relative">
           <HugeiconsIcon icon={Search01Icon} className="absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search chats..."
+            placeholder={t("chat.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="h-8 pl-7 text-xs"
@@ -203,11 +209,11 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
               onClick={() => setImportDialogOpen(true)}
             >
               <HugeiconsIcon icon={FileImportIcon} className="h-3 w-3" />
-              Import CLI Session
+              {t("chat.importCliSession")}
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">
-            Import conversations from Claude Code CLI
+            {t("chat.importCliTooltip")}
           </TooltipContent>
         </Tooltip>
       </div>
@@ -217,7 +223,7 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
         <div className="flex flex-col pb-3">
           {filteredSessions.length === 0 ? (
             <p className="px-2.5 py-3 text-[11px] text-muted-foreground/60">
-              {searchQuery ? "No matching chats" : "No conversations yet"}
+              {searchQuery ? t("chat.noMatchingChats") : t("chat.noConversationsYet")}
             </p>
           ) : (
             DATE_GROUP_ORDER.map((group) => {
@@ -274,7 +280,7 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
                             <div className="flex items-center gap-1.5 min-w-0">
                               {/* Mode badge */}
                               <span className={cn("text-[9px] px-1 py-0.5 rounded font-medium leading-none shrink-0", badgeCfg.className)}>
-                                {badgeCfg.label}
+                                {t(`chat.${badgeCfg.labelKey}`)}
                               </span>
                               {session.project_name && (
                                 <span className="truncate text-[10px] text-muted-foreground/50">
@@ -287,7 +293,7 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
                                 </span>
                               )}
                               <span className="text-[10px] text-muted-foreground/40 shrink-0">
-                                {formatRelativeTime(session.updated_at, locale)}
+                                {formatRelativeTime(session.updated_at, t)}
                               </span>
                             </div>
                           </Link>
@@ -305,12 +311,12 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
                                 >
                                   <HugeiconsIcon icon={Delete02Icon} className="h-3 w-3" />
                                   <span className="sr-only">
-                                    Delete session
+                                    {t("chat.deleteSession")}
                                   </span>
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent side="right">
-                                Delete
+                                {t("chat.delete")}
                               </TooltipContent>
                             </Tooltip>
                           )}
@@ -337,6 +343,34 @@ export function ChatListPanel({ open }: ChatListPanelProps) {
         open={importDialogOpen}
         onOpenChange={setImportDialogOpen}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>{t("chat.deleteConfirmTitle")}</DialogTitle>
+            <DialogDescription>
+              {t("chat.deleteConfirmDesc")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={!!deletingSession}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteSession}
+              disabled={!!deletingSession}
+            >
+              {deletingSession ? t("common.deleting") : t("common.confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </aside>
   );
 }

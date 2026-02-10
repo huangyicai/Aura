@@ -19,6 +19,7 @@ import {
 import { Shimmer } from '@/components/ai-elements/shimmer';
 import type { ToolUIPart } from 'ai';
 import type { PermissionRequestEvent } from '@/types';
+import { useLanguage } from '@/lib/i18n';
 
 interface ToolUseInfo {
   id: string;
@@ -66,7 +67,8 @@ function ElapsedTimer() {
 }
 
 function StreamingStatusBar({ statusText }: { statusText?: string }) {
-  const displayText = statusText || 'Thinking';
+  const { t } = useLanguage();
+  const displayText = statusText || t('chat.thinking');
 
   return (
     <div className="flex items-center gap-3 py-2 px-1 text-xs text-muted-foreground">
@@ -90,6 +92,7 @@ export function StreamingMessage({
   onPermissionResponse,
   permissionResolved,
 }: StreamingMessageProps) {
+  const { t } = useLanguage();
   const runningTools = toolUses.filter(
     (tool) => !toolResults.some((r) => r.tool_use_id === tool.id)
   );
@@ -131,7 +134,7 @@ export function StreamingMessage({
     }
     if (input.file_path) return `${tool.name}: ${String(input.file_path)}`;
     if (input.path) return `${tool.name}: ${String(input.path)}`;
-    return `Running ${tool.name}...`;
+    return t('chat.runningTool', { tool: tool.name });
   };
 
   return (
@@ -182,31 +185,31 @@ export function StreamingMessage({
                   variant="outline"
                   onClick={() => onPermissionResponse?.('deny')}
                 >
-                  Deny
+                  {t('chat.deny')}
                 </ConfirmationAction>
                 <ConfirmationAction
                   variant="outline"
                   onClick={() => onPermissionResponse?.('allow')}
                 >
-                  Allow Once
+                  {t('chat.allowOnce')}
                 </ConfirmationAction>
                 {pendingPermission?.suggestions && pendingPermission.suggestions.length > 0 && (
                   <ConfirmationAction
                     variant="default"
                     onClick={() => onPermissionResponse?.('allow_session')}
                   >
-                    Allow for Session
+                    {t('chat.allowForSession')}
                   </ConfirmationAction>
                 )}
               </ConfirmationActions>
             </ConfirmationRequest>
 
             <ConfirmationAccepted>
-              <p className="text-xs text-green-600 dark:text-green-400">Allowed</p>
+              <p className="text-xs text-green-600 dark:text-green-400">{t('chat.allowed')}</p>
             </ConfirmationAccepted>
 
             <ConfirmationRejected>
-              <p className="text-xs text-red-600 dark:text-red-400">Denied</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{t('chat.denied')}</p>
             </ConfirmationRejected>
           </Confirmation>
         )}
@@ -219,7 +222,7 @@ export function StreamingMessage({
         {/* Loading indicator when no content yet */}
         {isStreaming && !content && toolUses.length === 0 && !pendingPermission && (
           <div className="py-2">
-            <Shimmer>Thinking...</Shimmer>
+            <Shimmer>{t('chat.thinking')}</Shimmer>
           </div>
         )}
 

@@ -6,6 +6,7 @@ import { Delete02Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { TaskItem, TaskStatus } from "@/types";
+import { useLanguage } from "@/lib/i18n";
 
 interface TaskCardProps {
   task: TaskItem;
@@ -27,20 +28,21 @@ const nextStatus: Record<TaskStatus, TaskStatus> = {
   failed: "pending",
 };
 
-function formatTime(dateStr: string): string {
+function formatTime(dateStr: string, t: (key: string, params?: Record<string, string | number>) => string): string {
   const date = new Date(dateStr.includes("T") ? dateStr : dateStr + "Z");
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMin = Math.floor(diffMs / 60000);
   const diffHr = Math.floor(diffMin / 60);
 
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffMin < 1) return t("project.justNow");
+  if (diffMin < 60) return t("project.minAgo", { diffMin });
+  if (diffHr < 24) return t("project.hrAgo", { diffHr });
   return date.toLocaleDateString();
 }
 
 export function TaskCard({ task, onUpdate, onDelete }: TaskCardProps) {
+  const { t } = useLanguage();
   const [editing, setEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
   const [hovered, setHovered] = useState(false);
@@ -77,7 +79,7 @@ export function TaskCard({ task, onUpdate, onDelete }: TaskCardProps) {
       <button
         onClick={handleStatusClick}
         className="mt-1 shrink-0"
-        title={`Status: ${task.status} (click to change)`}
+        title={t("project.statusTooltip", { status: task.status })}
       >
         <span
           className={cn(
@@ -121,7 +123,7 @@ export function TaskCard({ task, onUpdate, onDelete }: TaskCardProps) {
           </p>
         )}
         <p className="mt-0.5 text-[10px] text-muted-foreground">
-          {formatTime(task.updated_at)}
+          {formatTime(task.updated_at, t)}
         </p>
       </div>
 
@@ -134,7 +136,7 @@ export function TaskCard({ task, onUpdate, onDelete }: TaskCardProps) {
           className="shrink-0 text-muted-foreground hover:text-destructive"
         >
           <HugeiconsIcon icon={Delete02Icon} className="h-3 w-3" />
-          <span className="sr-only">Delete task</span>
+          <span className="sr-only">{t("project.deleteTask")}</span>
         </Button>
       )}
     </div>

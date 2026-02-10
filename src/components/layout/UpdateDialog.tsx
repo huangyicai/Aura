@@ -11,9 +11,11 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useUpdate } from "@/hooks/useUpdate";
+import { useLanguage } from "@/lib/i18n";
 
 export function UpdateDialog() {
   const { updateInfo, showDialog, setShowDialog, dismissUpdate } = useUpdate();
+  const { t } = useLanguage();
 
   if (!updateInfo?.updateAvailable) return null;
 
@@ -23,7 +25,7 @@ export function UpdateDialog() {
     }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>New Version Available</DialogTitle>
+          <DialogTitle>{t("update.title")}</DialogTitle>
           <DialogDescription>
             {updateInfo.releaseName}
             {updateInfo.publishedAt && (
@@ -61,19 +63,19 @@ export function UpdateDialog() {
         )}
 
         <p className="text-xs text-muted-foreground">
-          Current: v{updateInfo.currentVersion} &rarr; Latest: v{updateInfo.latestVersion}
+          {t("update.current")} v{updateInfo.currentVersion} &rarr; {t("update.latest")} v{updateInfo.latestVersion}
         </p>
 
         <DialogFooter>
           <Button variant="outline" onClick={dismissUpdate}>
-            Later
+            {t("update.later")}
           </Button>
           <Button
             onClick={() => {
               window.open(updateInfo.releaseUrl, "_blank");
             }}
           >
-            View Release
+            {t("update.viewRelease")}
           </Button>
         </DialogFooter>
       </DialogContent>

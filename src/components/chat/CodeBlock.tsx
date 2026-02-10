@@ -17,6 +17,7 @@ import {
   HashtagIcon,
 } from "@hugeicons/core-free-icons";
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/lib/i18n';
 
 const COLLAPSE_THRESHOLD = 20;
 const VISIBLE_LINES = 10;
@@ -48,6 +49,7 @@ export function CodeBlock({
   showLineNumbers = true,
   maxCollapsedLines = VISIBLE_LINES,
 }: CodeBlockProps) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const [copiedMarkdown, setCopiedMarkdown] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -147,34 +149,34 @@ export function CodeBlock({
           <button
             onClick={handleCopy}
             className="flex items-center gap-1 rounded px-1.5 py-0.5 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors"
-            title="Copy code"
+            title={t("chat.copyCode")}
           >
             {copied ? (
               <>
                 <HugeiconsIcon icon={Tick01Icon} className="h-3 w-3" />
-                <span>Copied</span>
+                <span>{t("chat.copied")}</span>
               </>
             ) : (
               <>
                 <HugeiconsIcon icon={Copy01Icon} className="h-3 w-3" />
-                <span>Copy</span>
+                <span>{t("common.copy")}</span>
               </>
             )}
           </button>
           <button
             onClick={handleCopyMarkdown}
             className="flex items-center gap-1 rounded px-1.5 py-0.5 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors"
-            title="Copy as Markdown"
+            title={t("chat.copyAsMarkdown")}
           >
             {copiedMarkdown ? (
               <>
                 <HugeiconsIcon icon={Tick01Icon} className="h-3 w-3" />
-                <span>Copied</span>
+                <span>{t("chat.copied")}</span>
               </>
             ) : (
               <>
                 <HugeiconsIcon icon={SourceCodeIcon} className="h-3 w-3" />
-                <span>Markdown</span>
+                <span>{t("chat.markdown")}</span>
               </>
             )}
           </button>
@@ -239,12 +241,12 @@ export function CodeBlock({
           {expanded ? (
             <>
               <HugeiconsIcon icon={ArrowUp01Icon} className="h-3 w-3" />
-              <span>Collapse</span>
+              <span>{t("chat.collapse")}</span>
             </>
           ) : (
             <>
               <HugeiconsIcon icon={ArrowDown01Icon} className="h-3 w-3" />
-              <span>Expand all {totalLines} lines</span>
+              <span>{t("chat.expandAll", { totalLines })}</span>
             </>
           )}
         </button>

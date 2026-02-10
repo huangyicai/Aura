@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 interface ClaudeStatus {
   connected: boolean;
@@ -18,6 +19,7 @@ interface ClaudeStatus {
 }
 
 export function ConnectionStatus() {
+  const { t } = useLanguage();
   const [status, setStatus] = useState<ClaudeStatus | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -65,22 +67,22 @@ export function ConnectionStatus() {
           )}
         />
         {status === null
-          ? "Checking"
+          ? t("connection.checking")
           : connected
-            ? "Connected"
-            : "Disconnected"}
+            ? t("connection.connected")
+            : t("connection.disconnected")}
       </button>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {connected ? "Claude Code Connected" : "Claude Code Not Connected"}
+              {connected ? t("connection.titleConnected") : t("connection.titleDisconnected")}
             </DialogTitle>
             <DialogDescription>
               {connected
-                ? `Claude Code CLI v${status?.version} is running and ready.`
-                : "Claude Code CLI is required to use this application."}
+                ? t("connection.connectedDesc", { version: status?.version || "" })
+                : t("connection.disconnectedDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -89,8 +91,8 @@ export function ConnectionStatus() {
               <div className="flex items-center gap-3 rounded-lg bg-emerald-500/10 px-4 py-3">
                 <span className="block h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500" />
                 <div>
-                  <p className="font-medium text-emerald-700 dark:text-emerald-400">Active</p>
-                  <p className="text-xs text-muted-foreground">Version {status?.version}</p>
+                  <p className="font-medium text-emerald-700 dark:text-emerald-400">{t("connection.active")}</p>
+                  <p className="text-xs text-muted-foreground">v{status?.version}</p>
                 </div>
               </div>
             </div>
@@ -98,25 +100,25 @@ export function ConnectionStatus() {
             <div className="space-y-4 text-sm">
               <div className="flex items-center gap-3 rounded-lg bg-red-500/10 px-4 py-3">
                 <span className="block h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" />
-                <p className="font-medium text-red-700 dark:text-red-400">Not detected</p>
+                <p className="font-medium text-red-700 dark:text-red-400">{t("connection.notDetected")}</p>
               </div>
 
               <div>
-                <h4 className="font-medium mb-1.5">1. Install Claude Code</h4>
+                <h4 className="font-medium mb-1.5">{t("connection.installStep")}</h4>
                 <code className="block rounded-md bg-muted px-3 py-2 text-xs">
                   npm install -g @anthropic-ai/claude-code
                 </code>
               </div>
 
               <div>
-                <h4 className="font-medium mb-1.5">2. Authenticate</h4>
+                <h4 className="font-medium mb-1.5">{t("connection.authStep")}</h4>
                 <code className="block rounded-md bg-muted px-3 py-2 text-xs">
                   claude login
                 </code>
               </div>
 
               <div>
-                <h4 className="font-medium mb-1.5">3. Verify Installation</h4>
+                <h4 className="font-medium mb-1.5">{t("connection.verifyStep")}</h4>
                 <code className="block rounded-md bg-muted px-3 py-2 text-xs">
                   claude --version
                 </code>
@@ -131,7 +133,7 @@ export function ConnectionStatus() {
                 checkStatus();
               }}
             >
-              Refresh
+              {t("common.refresh")}
             </Button>
           </DialogFooter>
         </DialogContent>

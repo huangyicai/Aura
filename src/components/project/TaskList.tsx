@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { TaskCard } from "./TaskCard";
 import type { TaskItem, TaskStatus } from "@/types";
+import { useLanguage } from "@/lib/i18n";
 
 interface TaskListProps {
   sessionId: string;
@@ -17,6 +18,7 @@ interface TaskListProps {
 type FilterTab = "all" | "in_progress" | "completed";
 
 export function TaskList({ sessionId }: TaskListProps) {
+  const { t } = useLanguage();
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -100,10 +102,10 @@ export function TaskList({ sessionId }: TaskListProps) {
     return true;
   });
 
-  const filterTabs: { key: FilterTab; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "in_progress", label: "Active" },
-    { key: "completed", label: "Done" },
+  const filterTabs: { key: FilterTab; labelKey: string }[] = [
+    { key: "all", labelKey: "project.statusAll" },
+    { key: "in_progress", labelKey: "project.statusActive" },
+    { key: "completed", labelKey: "project.statusDone" },
   ];
 
   return (
@@ -121,7 +123,7 @@ export function TaskList({ sessionId }: TaskListProps) {
             )}
             onClick={() => setFilter(tab.key)}
           >
-            {tab.label}
+            {t(tab.labelKey)}
           </Button>
         ))}
       </div>
@@ -129,7 +131,7 @@ export function TaskList({ sessionId }: TaskListProps) {
       {/* Add task input */}
       <div className="flex items-center gap-1 pb-2">
         <Input
-          placeholder="Add a task..."
+          placeholder={t("project.addTaskPlaceholder")}
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           onKeyDown={(e) => {
@@ -144,7 +146,7 @@ export function TaskList({ sessionId }: TaskListProps) {
           disabled={!newTitle.trim()}
         >
           <HugeiconsIcon icon={PlusSignIcon} className="h-3.5 w-3.5" />
-          <span className="sr-only">Add task</span>
+          <span className="sr-only">{t("project.addTask")}</span>
         </Button>
       </div>
 
@@ -152,11 +154,11 @@ export function TaskList({ sessionId }: TaskListProps) {
       <ScrollArea className="flex-1">
         {loading && tasks.length === 0 ? (
           <p className="py-4 text-center text-xs text-muted-foreground">
-            Loading tasks...
+            {t("project.loadingTasks")}
           </p>
         ) : filtered.length === 0 ? (
           <p className="py-4 text-center text-xs text-muted-foreground">
-            {tasks.length === 0 ? "No tasks yet" : "No matching tasks"}
+            {tasks.length === 0 ? t("project.noTasks") : t("project.noMatchingTasks")}
           </p>
         ) : (
           <div className="flex flex-col gap-1.5 pb-4">

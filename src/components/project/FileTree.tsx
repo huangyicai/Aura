@@ -6,6 +6,7 @@ import { RefreshIcon, Search01Icon, SourceCodeIcon, CodeIcon, File01Icon } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 import type { FileTreeNode } from "@/types";
 import {
   FileTree as AIFileTree,
@@ -105,6 +106,7 @@ function RenderTreeNodes({ nodes, searchQuery }: { nodes: FileTreeNode[]; search
 }
 
 export function FileTree({ workingDirectory, onFileSelect }: FileTreeProps) {
+  const { t } = useLanguage();
   const [tree, setTree] = useState<FileTreeNode[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -146,7 +148,7 @@ export function FileTree({ workingDirectory, onFileSelect }: FileTreeProps) {
       {/* Header */}
       <div className="flex items-center gap-2 p-2 border-b border-border/30">
         <p className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground" title={workingDirectory}>
-          {workingDirectory || 'No directory selected'}
+          {workingDirectory || t('project.noDirectory')}
         </p>
         <Button
           variant="ghost"
@@ -156,7 +158,7 @@ export function FileTree({ workingDirectory, onFileSelect }: FileTreeProps) {
           className="h-6 w-6 shrink-0"
         >
           <HugeiconsIcon icon={RefreshIcon} className={cn("h-3 w-3", loading && "animate-spin")} />
-          <span className="sr-only">Refresh</span>
+          <span className="sr-only">{t('project.refresh')}</span>
         </Button>
       </div>
 
@@ -164,7 +166,7 @@ export function FileTree({ workingDirectory, onFileSelect }: FileTreeProps) {
       <div className="relative p-2 border-b border-border/30">
         <HugeiconsIcon icon={Search01Icon} className="absolute left-4 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Filter files..."
+          placeholder={t('project.filterFiles')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="h-7 pl-7 text-xs"
@@ -179,7 +181,7 @@ export function FileTree({ workingDirectory, onFileSelect }: FileTreeProps) {
           </div>
         ) : tree.length === 0 ? (
           <p className="py-4 text-center text-xs text-muted-foreground">
-            {workingDirectory ? 'No files found' : 'Select a project folder to view files'}
+            {workingDirectory ? t('project.noFilesFound') : t('project.selectProjectHint')}
           </p>
         ) : (
           <AIFileTree

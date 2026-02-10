@@ -6,7 +6,7 @@ import { translations, type Locale } from "./locales";
 type LanguageContextType = {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -41,7 +41,7 @@ export function LanguageProvider({
   };
 
   // 翻译函数
-  const t = (key: string): string => {
+  const t = (key: string, params?: Record<string, string | number>): string => {
     const keys = key.split(".");
     let value: any = translations[locale];
 
@@ -58,7 +58,16 @@ export function LanguageProvider({
       }
     }
 
-    return value || key;
+    let result = value || key;
+
+    // 替换模板变量 {variable} 为实际值
+    if (params && typeof result === 'string') {
+      for (const [paramKey, paramValue] of Object.entries(params)) {
+        result = result.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue));
+      }
+    }
+
+    return result;
   };
 
   return (

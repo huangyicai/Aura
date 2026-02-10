@@ -24,6 +24,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { cn } from '@/lib/utils';
 import { FolderPicker } from './FolderPicker';
+import { useLanguage } from '@/lib/i18n';
 import {
   PromptInput,
   PromptInputTextarea,
@@ -94,29 +95,36 @@ const COMMAND_PROMPTS: Record<string, string> = {
   '/memory': 'Show the current CLAUDE.md project memory file and help me review or edit it.',
 };
 
-const BUILT_IN_COMMANDS: PopoverItem[] = [
-  { label: 'help', value: '/help', description: 'Show available commands and tips', builtIn: true, immediate: true, icon: HelpCircleIcon },
-  { label: 'clear', value: '/clear', description: 'Clear conversation history', builtIn: true, immediate: true, icon: Delete02Icon },
-  { label: 'cost', value: '/cost', description: 'Show token usage statistics', builtIn: true, immediate: true, icon: Coins01Icon },
-  { label: 'compact', value: '/compact', description: 'Compress conversation context', builtIn: true, icon: FileZipIcon },
-  { label: 'doctor', value: '/doctor', description: 'Diagnose project health', builtIn: true, icon: Stethoscope02Icon },
-  { label: 'init', value: '/init', description: 'Initialize CLAUDE.md for project', builtIn: true, icon: FileEditIcon },
-  { label: 'review', value: '/review', description: 'Review code quality', builtIn: true, icon: SearchList01Icon },
-  { label: 'terminal-setup', value: '/terminal-setup', description: 'Configure terminal settings', builtIn: true, icon: CommandLineIcon },
-  { label: 'memory', value: '/memory', description: 'Edit project memory file', builtIn: true, icon: BrainIcon },
+// Built-in command definitions (will be localized with i18n)
+const BUILT_IN_COMMAND_DEFS: Array<{
+  labelKey: string;
+  descKey: string;
+  value: string;
+  icon: typeof HelpCircleIcon;
+  immediate?: boolean;
+}> = [
+  { labelKey: 'cmdHelp', descKey: 'cmdHelpDesc', value: '/help', icon: HelpCircleIcon, immediate: true },
+  { labelKey: 'cmdClear', descKey: 'cmdClearDesc', value: '/clear', icon: Delete02Icon, immediate: true },
+  { labelKey: 'cmdCost', descKey: 'cmdCostDesc', value: '/cost', icon: Coins01Icon, immediate: true },
+  { labelKey: 'cmdCompact', descKey: 'cmdCompactDesc', value: '/compact', icon: FileZipIcon },
+  { labelKey: 'cmdDoctor', descKey: 'cmdDoctorDesc', value: '/doctor', icon: Stethoscope02Icon },
+  { labelKey: 'cmdInit', descKey: 'cmdInitDesc', value: '/init', icon: FileEditIcon },
+  { labelKey: 'cmdReview', descKey: 'cmdReviewDesc', value: '/review', icon: SearchList01Icon },
+  { labelKey: 'cmdTerminalSetup', descKey: 'cmdTerminalSetupDesc', value: '/terminal-setup', icon: CommandLineIcon },
+  { labelKey: 'cmdMemory', descKey: 'cmdMemoryDesc', value: '/memory', icon: BrainIcon },
 ];
 
 interface ModeOption {
   value: string;
-  label: string;
+  labelKey: string;
+  descKey: string;
   icon: typeof Wrench01Icon;
-  description: string;
 }
 
-const MODE_OPTIONS: ModeOption[] = [
-  { value: 'code', label: 'Code', icon: Wrench01Icon, description: 'Read, write files & run commands' },
-  { value: 'plan', label: 'Plan', icon: ClipboardIcon, description: 'Analyze & plan without executing' },
-  { value: 'ask', label: 'Ask', icon: HelpCircleIcon, description: 'Answer questions only' },
+const MODE_OPTIONS_DEFS: ModeOption[] = [
+  { value: 'code', labelKey: 'modeCode', descKey: 'modeCodeDesc', icon: Wrench01Icon },
+  { value: 'plan', labelKey: 'modePlan', descKey: 'modePlanDesc', icon: ClipboardIcon },
+  { value: 'ask', labelKey: 'modeAsk', descKey: 'modeAskDesc', icon: HelpCircleIcon },
 ];
 
 // Default Claude model options — labels are dynamically overridden by active provider
@@ -239,11 +247,12 @@ function FileAwareSubmitButton({
  */
 function AttachFileButton() {
   const attachments = usePromptInputAttachments();
+  const { t } = useLanguage();
 
   return (
     <PromptInputButton
       onClick={() => attachments.openFileDialog()}
-      tooltip="Attach files"
+      tooltip={t('input.attachFiles')}
     >
       <HugeiconsIcon icon={Attachment01Icon} className="h-3.5 w-3.5" />
     </PromptInputButton>
@@ -311,6 +320,7 @@ export function MessageInput({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const modeMenuRef = useRef<HTMLDivElement>(null);
   const modelMenuRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   const [popoverMode, setPopoverMode] = useState<PopoverMode>(null);
   const [popoverItems, setPopoverItems] = useState<PopoverItem[]>([]);
@@ -324,6 +334,24 @@ export function MessageInput({
   const [badge, setBadge] = useState<CommandBadge | null>(null);
   const [activeProviderBaseUrl, setActiveProviderBaseUrl] = useState<string | null>(null);
   const [activeProviderName, setActiveProviderName] = useState<string | null>(null);
+
+  // Localized built-in commands
+  const BUILT_IN_COMMANDS: PopoverItem[] = BUILT_IN_COMMAND_DEFS.map(cmd => ({
+    label: t(`input.${cmd.labelKey}`),
+    value: cmd.value,
+    description: t(`input.${cmd.descKey}`),
+    builtIn: true,
+    immediate: cmd.immediate,
+    icon: cmd.icon,
+  }));
+
+  // Localized mode options
+  const MODE_OPTIONS: Array<{ value: string; label: string; description: string; icon: typeof Wrench01Icon }> = MODE_OPTIONS_DEFS.map(opt => ({
+    value: opt.value,
+    label: t(`input.${opt.labelKey}`),
+    description: t(`input.${opt.descKey}`),
+    icon: opt.icon,
+  }));
 
   // Fetch active provider to adapt model labels
   useEffect(() => {
@@ -746,7 +774,7 @@ export function MessageInput({
                 )}
                 {!item.builtIn && item.installedSource && (
                   <span className="text-xs text-muted-foreground shrink-0 ml-auto">
-                    {item.installedSource === 'claude' ? 'Personal' : 'Agents'}
+                    {item.installedSource === 'claude' ? t('input.personal') : t('input.agents')}
                   </span>
                 )}
               </button>
@@ -762,7 +790,7 @@ export function MessageInput({
                     <input
                       ref={searchInputRef}
                       type="text"
-                      placeholder="Search..."
+                      placeholder={t('input.search')}
                       value={popoverFilter}
                       onChange={(e) => {
                         const val = e.target.value;
@@ -798,7 +826,7 @@ export function MessageInput({
                   </div>
                 ) : (
                   <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b">
-                    Files
+                    {t('input.files')}
                   </div>
                 )}
                 <div className="max-h-48 overflow-y-auto py-1">
@@ -809,7 +837,7 @@ export function MessageInput({
                       {builtInItems.length > 0 && (
                         <>
                           <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
-                            Commands
+                            {t('input.commands')}
                           </div>
                           {builtInItems.map((item) => {
                             const idx = globalIdx++;
@@ -820,7 +848,7 @@ export function MessageInput({
                       {skillItems.length > 0 && (
                         <>
                           <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
-                            Skills
+                            {t('input.skills')}
                           </div>
                           {skillItems.map((item) => {
                             const idx = globalIdx++;
@@ -866,7 +894,7 @@ export function MessageInput({
             <FileAttachmentsCapsules />
             <PromptInputTextarea
               ref={textareaRef}
-              placeholder={badge ? "Add details (optional), then press Enter..." : "Message Claude..."}
+              placeholder={badge ? t('input.addDetails') : t('input.messageClaude')}
               value={inputValue}
               onChange={(e) => handleInputChange(e.currentTarget.value)}
               onKeyDown={handleKeyDown}
@@ -881,11 +909,11 @@ export function MessageInput({
                 {/* Folder picker button */}
                 <PromptInputButton
                   onClick={() => setFolderPickerOpen(true)}
-                  tooltip={workingDirectory || 'Select project folder'}
+                  tooltip={workingDirectory || t('input.selectProjectFolder')}
                 >
                   <HugeiconsIcon icon={FolderOpenIcon} className="h-3.5 w-3.5" />
                   <span className="max-w-[120px] truncate text-xs">
-                    {folderShortName || 'Folder'}
+                    {folderShortName || t('input.folder')}
                   </span>
                 </PromptInputButton>
 

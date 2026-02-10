@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/lib/i18n";
 
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PlusSignIcon, Search01Icon, ZapIcon, Loading02Icon } from "@hugeicons/core-free-icons";
@@ -12,6 +13,7 @@ import { CreateSkillDialog } from "./CreateSkillDialog";
 import type { SkillItem } from "./SkillListItem";
 
 export function SkillsManager() {
+  const { t } = useLanguage();
   const [skills, setSkills] = useState<SkillItem[]>([]);
   const [selected, setSelected] = useState<SkillItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -132,7 +134,7 @@ export function SkillsManager() {
       <div className="flex h-64 items-center justify-center">
         <HugeiconsIcon icon={Loading02Icon} className="h-5 w-5 animate-spin text-muted-foreground" />
         <span className="ml-2 text-sm text-muted-foreground">
-          Loading skills...
+          {t("skills.loadingSkills")}
         </span>
       </div>
     );
@@ -142,10 +144,10 @@ export function SkillsManager() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <h3 className="text-lg font-semibold flex-1">Skills</h3>
+        <h3 className="text-lg font-semibold flex-1">{t("skills.title")}</h3>
         <Button size="sm" onClick={() => setShowCreate(true)} className="gap-1">
           <HugeiconsIcon icon={PlusSignIcon} className="h-3.5 w-3.5" />
-          New Skill
+          {t("skills.newSkill")}
         </Button>
       </div>
 
@@ -157,7 +159,7 @@ export function SkillsManager() {
             <div className="relative">
               <HugeiconsIcon icon={Search01Icon} className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
-                placeholder="Search skills..."
+                placeholder={t("skills.searchPlaceholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-7 h-8 text-sm"
@@ -169,7 +171,7 @@ export function SkillsManager() {
               {projectSkills.length > 0 && (
                 <div className="mb-1">
                   <span className="px-3 py-1 text-[10px] font-medium uppercase text-muted-foreground">
-                    Project
+                    {t("skills.category.project")}
                   </span>
                   {projectSkills.map((skill) => (
                     <SkillListItem
@@ -189,7 +191,7 @@ export function SkillsManager() {
               {globalSkills.length > 0 && (
                 <div className="mb-1">
                   <span className="px-3 py-1 text-[10px] font-medium uppercase text-muted-foreground">
-                    Global
+                    {t("skills.category.global")}
                   </span>
                   {globalSkills.map((skill) => (
                     <SkillListItem
@@ -209,7 +211,7 @@ export function SkillsManager() {
               {installedSkills.length > 0 && (
                 <div className="mb-1">
                   <span className="px-3 py-1 text-[10px] font-medium uppercase text-muted-foreground">
-                    Installed
+                    {t("skills.category.installed")}
                   </span>
                   {installedSkills.map((skill) => (
                     <SkillListItem
@@ -229,7 +231,7 @@ export function SkillsManager() {
               {pluginSkills.length > 0 && (
                 <div className="mb-1">
                   <span className="px-3 py-1 text-[10px] font-medium uppercase text-muted-foreground">
-                    Plugins
+                    {t("skills.category.plugins")}
                   </span>
                   {pluginSkills.map((skill) => (
                     <SkillListItem
@@ -250,7 +252,7 @@ export function SkillsManager() {
                 <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
                   <HugeiconsIcon icon={ZapIcon} className="h-8 w-8 opacity-40" />
                   <p className="text-xs">
-                    {search ? "No skills match your search" : "No skills yet"}
+                    {search ? t("skills.noSkillsMatch") : t("skills.noSkillsYet")}
                   </p>
                   {!search && (
                     <Button
@@ -260,7 +262,7 @@ export function SkillsManager() {
                       className="gap-1"
                     >
                       <HugeiconsIcon icon={PlusSignIcon} className="h-3 w-3" />
-                      Create one
+                      {t("skills.createOne")}
                     </Button>
                   )}
                 </div>
@@ -282,9 +284,9 @@ export function SkillsManager() {
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3">
               <HugeiconsIcon icon={ZapIcon} className="h-12 w-12 opacity-30" />
               <div className="text-center">
-                <p className="text-sm font-medium">No skill selected</p>
+                <p className="text-sm font-medium">{t("skills.noSkillSelected")}</p>
                 <p className="text-xs">
-                  Select a skill from the list or create a new one
+                  {t("skills.selectSkillHint")}
                 </p>
               </div>
               <Button
@@ -294,7 +296,7 @@ export function SkillsManager() {
                 className="gap-1"
               >
                 <HugeiconsIcon icon={PlusSignIcon} className="h-3.5 w-3.5" />
-                New Skill
+                {t("skills.newSkill")}
               </Button>
             </div>
           )}
