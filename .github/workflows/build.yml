@@ -18,6 +18,9 @@ jobs:
           - os: windows-latest
             platform: win
             target: nsis
+      fail-fast: false
+
+    timeout-minutes: 60
 
     runs-on: ${{ matrix.os }}
 
@@ -29,9 +32,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build Electron app
         run: npm run electron:pack:${{ matrix.platform }}
@@ -42,11 +46,15 @@ jobs:
           name: Aura-${{ matrix.platform }}
           path: release/*.{dmg,exe,zip}
           retention-days: 30
+          if-no-files-found: warn
 
   release:
     needs: build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
+
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -63,5 +71,6 @@ jobs:
           files: release/*/*
           draft: false
           prerelease: false
+          generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
