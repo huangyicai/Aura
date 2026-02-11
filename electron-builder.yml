@@ -1,5 +1,6 @@
 appId: com.aura.app
 productName: Aura
+publish: null
 directories:
   output: release
 files:
@@ -47,7 +48,7 @@ mac:
     - target: dmg
       arch: [arm64, x64]
 win:
-  icon: build/icon.ico  # Temporarily disabled - current file only has 16x16/32x32, needs 256x256+
+  # icon: build/icon.ico  # Needs 256x256+ resolution
   target:
     - target: nsis
       arch: [x64, arm64]
