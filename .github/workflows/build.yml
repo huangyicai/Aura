@@ -40,11 +40,14 @@ jobs:
       - name: Build Electron app
         run: npm run electron:pack:${{ matrix.platform }}
 
+      - name: List release directory
+        run: ls -la release/ || echo "release directory not found"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Aura-${{ matrix.platform }}
-          path: release/*.{dmg,exe,zip}
+          path: release/**
           retention-days: 30
           if-no-files-found: warn
 
