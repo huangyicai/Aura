@@ -5,10 +5,6 @@
 
 [English](./README.md)
 
-[![GitHub release](https://img.shields.io/github/v/release/op7418/Aura)](https://github.com/op7418/Aura/releases)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)](https://github.com/op7418/Aura/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-
 ---
 
 ## ✨ 功能特性
@@ -26,10 +22,6 @@
 - 🌓 **深色/浅色主题** -- 导航栏一键切换主题
 - 💻 **斜杠命令** -- 内置 `/help`、`/clear`、`/cost`、`/compact`、`/doctor`、`/review` 等命令
 - 📦 **Electron 打包** -- 原生桌面应用，隐藏标题栏，内置 Next.js 服务器，自动端口分配
-
-## 📸 截图
-
-![Aura](docs/screenshot.png)
 
 ---
 
@@ -49,7 +41,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/op7418/Aura.git
+git clone https://github.com/huangyicai/Aura.git
 cd Aura
 
 # 安装依赖
@@ -65,10 +57,6 @@ npm run electron:dev
 然后打开 [http://localhost:3000](http://localhost:3000)（浏览器模式）或等待 Electron 窗口弹出。
 
 ---
-
-## 📥 下载
-
-预编译版本可在 [Releases](https://github.com/op7418/Aura/releases) 页面下载。
 
 ### 支持平台
 

@@ -3,9 +3,6 @@
 
 **A native desktop GUI for Claude Code** -- chat, code, and manage projects through a polished visual interface instead of the terminal.
 
-[![GitHub release](https://img.shields.io/github/v/release/op7418/Aura)](https://github.com/op7418/Aura/releases)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)](https://github.com/op7418/Aura/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 [中文文档](./README_CN.md)
 
@@ -29,12 +26,6 @@
 
 ---
 
-## Screenshots
-
-![Aura](docs/screenshot.png)
-
----
-
 ## Prerequisites
 
 > **Important**: Aura calls the Claude Code Agent SDK under the hood. Make sure `claude` is available on your `PATH` and that you have authenticated (`claude login`) before launching the app.
@@ -46,10 +37,6 @@
 | **npm** | 9+ (ships with Node 18) |
 
 ---
-
-## Download
-
-Pre-built releases are available on the [**Releases**](https://github.com/op7418/Aura/releases) page.
 
 ### Supported Platforms
 
@@ -63,7 +50,7 @@ Pre-built releases are available on the [**Releases**](https://github.com/op7418
 
 ```bash
 # Clone the repository
-git clone https://github.com/op7418/Aura.git
+git clone https://github.com/huangyicai/Aura.git
 cd aura
 
 # Install dependencies
