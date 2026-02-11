@@ -9,8 +9,7 @@ import {
 } from '@/components/ai-elements/conversation';
 import { MessageItem } from './MessageItem';
 import { StreamingMessage } from './StreamingMessage';
-import { AuraLogo } from './AuraLogo';
-import { CodePilotLogo } from './CodePilotLogo';  // 添加这行
+import { useLanguage } from '@/lib/i18n';
 
 interface ToolUseInfo {
   id: string;
@@ -49,13 +48,14 @@ export function MessageList({
   onPermissionResponse,
   permissionResolved,
 }: MessageListProps) {
+  const { t } = useLanguage();
+
   if (messages.length === 0 && !isStreaming) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <ConversationEmptyState
-          title="Claude Chat"
-          description="Start a conversation with Claude. Ask questions, get help with code, or explore ideas."
-          icon={<CodePilotLogo className="h-16 w-16" />}
+          title={t('conversationEmpty.title')}
+          description={t('conversationEmpty.description')}
         />
       </div>
     );

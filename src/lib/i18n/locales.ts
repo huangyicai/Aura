@@ -366,7 +366,7 @@ export const translations = {
       commands: 'Commands',
       skills: 'Skills',
       addDetails: 'Add details (optional), then press Enter...',
-      messageClaude: 'Message Claude...',
+      messageClaude: 'Message Aura...',
       selectProjectFolder: 'Select project folder',
       folder: 'Folder',
       personal: 'Personal',
@@ -406,6 +406,11 @@ export const translations = {
       moreLines: '... and {count} more lines',
       input: 'Input',
       output: 'Output',
+    },
+    // Conversation Empty State
+    conversationEmpty: {
+      title: 'Aura Chat',
+      description: 'Start a conversation with Aura. Ask questions, get help with code, or explore ideas.',
     },
   },
   zh: {
@@ -773,7 +778,7 @@ export const translations = {
       commands: '命令',
       skills: '技能',
       addDetails: '添加详情（可选），然后按回车...',
-      messageClaude: '发送消息给 Claude...',
+      messageClaude: '发送消息给 Aura...',
       selectProjectFolder: '选择项目文件夹',
       folder: '文件夹',
       personal: '个人',
@@ -813,6 +818,11 @@ export const translations = {
       moreLines: '... 还有 {count} 行',
       input: '输入',
       output: '输出',
+    },
+    // Conversation Empty State
+    conversationEmpty: {
+      title: 'Aura 对话',
+      description: '开始与 Aura 的对话。提问、获取代码帮助，或探索想法。',
     },
   },
 } as const;
